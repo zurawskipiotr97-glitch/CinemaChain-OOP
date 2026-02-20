@@ -63,5 +63,20 @@ public class Customer {
         return screening.getReservedSeatsFor(this);
     }
 
+    public void printOwnTickets() {
+        if (ownTickets.isEmpty()) {
+            System.out.println(firstName + " " + lastName + " - brak biletów.");
+            return;
+        }
+
+        System.out.println("Bilety klienta: " + firstName + " " + lastName);
+        for (Ticket t : ownTickets) {
+            System.out.println("- " + t.getCode()
+                    + " | " + t.getScreening().getMovie().title()
+                    + " | " + t.getScreening().getStartTime()
+                    + " | miejsce: " + t.getSeat().getCode());
+        }
+    }
+
 
 }

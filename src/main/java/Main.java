@@ -2,7 +2,7 @@ import java.time.Duration;
 import java.util.List;
 
 public class Main {
-    static void main() {
+    public static void main(String[] args) {
         // ===== Sieć =====
         CinemaChain Multikino = new CinemaChain("Mulitkino");
 
@@ -39,6 +39,49 @@ public class Main {
         Multikino.registerCustomer(c1);
         Multikino.registerCustomer(c2);
         Multikino.registerCustomer(c3);
+
+        // ===== SALE + MIEJSCA =====
+        Hall hall1 = new Hall("Sala 1");
+        for (int i = 1; i <= 10; i++) hall1.addSeat(new Seat("A", i, SeatCategory.STANDARD));
+        for (int i = 1; i <= 5; i++) hall1.addSeat(new Seat("B", i, SeatCategory.VIP));
+
+        tarasy.addHall(hall1);
+
+// ===== SEANS (dziś + 2h, żeby był w "najbliższym tygodniu") =====
+        Screening screening = new Screening(
+                avatar,
+                hall1,
+                false,   // isVip screening
+                true,    // 3D
+                java.time.LocalDateTime.now().plusHours(2)
+        );
+        tarasy.addScreening(screening);
+
+// ===== REPERTUAR =====
+        Multikino.printProgramme();   // sieć
+        tarasy.printProgramme();      // jedno kino
+
+// ===== KLIENT kupuje bilety i sprawdza swoje =====
+        List<TicketPurchase> p1 = screening.buyTickets(Multikino, c1, "A1", "A2");
+        c1.printOwnTickets();
+
+// ===== GOŚĆ kupuje bilet i sprawdza po kodzie (CinemaChain) =====
+        List<TicketPurchase> p2 = screening.buyTickets(Multikino, "A3");
+        String guestCode = p2.get(0).ticket().getCode();
+        System.out.println("Kod biletu gościa: " + guestCode);
+
+        Ticket found = Multikino.findTicketByCode(guestCode);
+        System.out.println("Znaleziony bilet: " + found.getCode()
+                + " | " + found.getScreening().getMovie().title()
+                + " | " + found.getScreening().getStartTime()
+                + " | miejsce: " + found.getSeat().getCode());
+
+// ===== GOŚĆ rezerwuje tokenem -> kupuje -> sprawdza =====
+        String token = screening.reservePlaces("A4", "A5");
+        List<TicketPurchase> p3 = screening.buyTickets(Multikino, token, "A4", "A5");
+        String codeFromReservation = p3.get(0).ticket().getCode();
+        System.out.println("Kod biletu (gość po rezerwacji): " + codeFromReservation);
+        System.out.println("Wyszukiwanie w chain: " + (Multikino.findTicketByCode(codeFromReservation) != null));
 
 
     }

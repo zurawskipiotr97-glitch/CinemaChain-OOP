@@ -1,4 +1,4 @@
-enum Genre {
+public enum Genre {
     SCI_FI,
     BIOGRAPHY,
     COMEDY,

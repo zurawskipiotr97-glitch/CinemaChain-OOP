@@ -1,4 +1,4 @@
-enum SeatStatus {
+public enum SeatStatus {
     FREE,
     RESERVED,
     SOLD

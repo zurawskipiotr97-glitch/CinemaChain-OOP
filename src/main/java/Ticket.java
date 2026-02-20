@@ -28,4 +28,15 @@ public class Ticket {
     public Customer getOwner() {
         return owner;
     }
+
+    @Override
+    public String toString() {
+        return "Ticket{" +
+                "code='" + code + '\'' +
+                ", movie=" + screening.getMovie().title() +
+                ", time=" + screening.getStartTime() +
+                ", seat=" + seat.getCode() +
+                ", owner=" + (owner == null ? "GUEST" : owner.getFirstName() + " " + owner.getLastName()) +
+                '}';
+    }
 }
