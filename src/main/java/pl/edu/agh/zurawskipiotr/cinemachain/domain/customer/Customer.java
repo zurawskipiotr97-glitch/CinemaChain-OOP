@@ -74,10 +74,13 @@ public class Customer {
         }
 
         System.out.println("Bilety klienta: " + firstName + " " + lastName);
+
         for (Ticket t : ownTickets) {
             System.out.println("- " + t.getCode()
-                    + " | " + t.getScreening().getMovie().title()
-                    + " | " + t.getScreening().getStartTime()
+                    + " | kino: " + t.getScreening().getCinema().getName()
+                    + " | sala: " + t.getScreening().getHall().getName()
+                    + " | film: " + t.getScreening().getMovie().title()
+                    + " | godzina: " + t.getScreening().getStartTime()
                     + " | miejsce: " + t.getSeat().getCode());
         }
     }

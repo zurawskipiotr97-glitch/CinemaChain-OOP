@@ -62,6 +62,7 @@ public class Cinema {
             throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Hall with name already exists: " + hall.getName());
         }
         rooms.add(hall);
+        hall.setCinema(this);
     }
 
     public void addScreening(Screening screening) {
@@ -75,6 +76,7 @@ public class Cinema {
     public void removeHall(Hall hall) {
         if (hall == null) return;
         rooms.remove(hall);
+        if (hall.getCinema() == this) hall.setCinema(null);
     }
 
     public void removeScreening(Screening screening) {

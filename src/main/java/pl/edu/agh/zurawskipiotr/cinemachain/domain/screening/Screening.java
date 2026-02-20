@@ -244,6 +244,10 @@ public class Screening {
         return hall;
     }
 
+    public pl.edu.agh.zurawskipiotr.cinemachain.domain.venue.Cinema getCinema() {
+        return hall.getCinema();
+    }
+
     public boolean isVip() {
         return isVip;
     }
