@@ -1,3 +1,5 @@
+import Customer.Customer;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +9,7 @@ public class CinemaChain {
 
     String chainName;
     List<Cinema> cinemas = new ArrayList<>();
+    //email,
     Map<String, Customer> customers = new HashMap<>();
 
 
