@@ -1,6 +1,6 @@
 Celem zadania jest zaprojektowanie i implementacja systemu wspierającego funkcjonowanie sieci multipleksów (a więc mówimy o obsłudze wielu lokalizacji, a w każdej z nich jest wiele sal kinowych).
 
-![img.png](img.png)
+![img.png](docs/images/img.png)
 
 Proszę o:
 
@@ -20,7 +20,7 @@ chcemy mieć możliwość sprawdzenia swoich biletów
 chcemy mieć możliwość zakupu biletów bez konta
 chcemy zobaczyć przykład wywołania w ramach funkcji main() - zobacz przykład na końcu!
 
-![img_1.png](img_1.png)
+![img_1.png](docs/images/img_1.png)
 
 Dla uproszczenia NIE ZAJMUJEMY SIĘ (nie modelujemy na diagramie klas):
 
@@ -28,15 +28,15 @@ płatnościami online
 kasjerem
 administratorem
 logowaniem (poza kontem klienta nie potrzebujemy nic co jest związane z logowaniem)
-Dla lepszego zwizualizowania celu powinni Państwo dostarczyc demonstracyjną klasę Main gdzie zobaczymy cos w stylu:
+Dla lepszego zwizualizowania celu powinni Państwo dostarczyc demonstracyjną klasę pl.edu.agh.zurawskipiotr.cinemachain.Main gdzie zobaczymy cos w stylu:
 
-public class Main {
+public class pl.edu.agh.zurawskipiotr.cinemachain.Main {
 public static void main(String[] args) {
-Cinema cinema1 = new Cinema("Super Tarasy", "ul. Akademicka 5");
+pl.edu.agh.zurawskipiotr.cinemachain.model.Cinema cinema1 = new pl.edu.agh.zurawskipiotr.cinemachain.model.Cinema("Super Tarasy", "ul. Akademicka 5");
 //... configuration and test data should be inserted here...
 // below you will find sample function executions
 cinema1.printProgramme();
-Screening screening = cinema1.getScreenings()[0];
+pl.edu.agh.zurawskipiotr.cinemachain.model.Screening screening = cinema1.getScreenings()[0];
 screening.reservePlaces("H34", "H35", "H36"); // seats number given
 screening.reservePlaces(seat1, seat2, seat3); // other option
 screening.reservePlaces(customer, "H34", "H35", "H36"); // reservation for registered customer

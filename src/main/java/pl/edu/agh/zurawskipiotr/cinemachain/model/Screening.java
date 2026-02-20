@@ -1,3 +1,9 @@
+package pl.edu.agh.zurawskipiotr.cinemachain.model;
+
+import pl.edu.agh.zurawskipiotr.cinemachain.enums.SeatStatus;
+import pl.edu.agh.zurawskipiotr.cinemachain.pricing.DefaultPricingPolicy;
+import pl.edu.agh.zurawskipiotr.cinemachain.pricing.PricingPolicy;
+
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -34,14 +40,14 @@ public class Screening {
     private final Map<String, LocalDateTime> reservedAtBySeatCode = new HashMap<>();
 
     /**
-     * Reservation time-to-live. After TTL passes, RESERVED seats are released back to FREE.
+     * pl.edu.agh.zurawskipiotr.cinemachain.model.Reservation time-to-live. After TTL passes, RESERVED seats are released back to FREE.
      */
     private final Duration reservationTtl;
 
 
     /**
      * Local registry of tickets sold for this screening.
-     * ticketCode -> Ticket
+     * ticketCode -> pl.edu.agh.zurawskipiotr.cinemachain.model.Ticket
      */
     private final Map<String, Ticket> soldTicketsByCode = new HashMap<>();
 
@@ -76,7 +82,7 @@ public class Screening {
     // Reservations
     // =========================================================
 
-    // Customer reservation
+    // pl.edu.agh.zurawskipiotr.cinemachain.model.Customer reservation
     public void reservePlaces(Customer customer, String... seatCodes) {
         Objects.requireNonNull(customer, "customer");
         reservePlacesInternal(ownerKeyForCustomer(customer), seatCodes);
@@ -98,7 +104,7 @@ public class Screening {
             SeatStatus status = seatStatus.get(code);
             if (status == null) throw new IllegalArgumentException("No such seat in this hall: " + code);
             if (status != SeatStatus.FREE) {
-                throw new IllegalStateException("Seat not available: " + code + " (status=" + status + ")");
+                throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Seat not available: " + code + " (status=" + status + ")");
             }
         }
 
@@ -126,7 +132,7 @@ public class Screening {
         return buyTicketsInternal(null, null, seatCodes);
     }
 
-    // Customer: FREE + own RESERVED
+    // pl.edu.agh.zurawskipiotr.cinemachain.model.Customer: FREE + own RESERVED
     public List<TicketPurchase> buyTicketsForCustomer(Customer customer, String... seatCodes) {
         Objects.requireNonNull(customer, "customer");
         return buyTicketsInternal(customer, null, seatCodes);
@@ -135,7 +141,7 @@ public class Screening {
     // Guest with token: FREE + token-owned RESERVED
     public List<TicketPurchase> buyTicketsAsGuestWithToken(String reservationToken, String... seatCodes) {
         if (reservationToken == null || reservationToken.isBlank()) {
-            throw new IllegalArgumentException("Reservation token is required");
+            throw new IllegalArgumentException("pl.edu.agh.zurawskipiotr.cinemachain.model.Reservation token is required");
         }
         return buyTicketsInternal(null, reservationToken, seatCodes);
     }
@@ -160,25 +166,25 @@ public class Screening {
             if (status == null) throw new IllegalArgumentException("No such seat in this hall: " + code);
 
             if (status == SeatStatus.SOLD) {
-                throw new IllegalStateException("Seat already sold: " + code);
+                throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Seat already sold: " + code);
             }
 
             if (status == SeatStatus.RESERVED) {
                 if (isGuestWithoutToken) {
-                    throw new IllegalStateException("Seat is reserved (guest cannot buy without token): " + code);
+                    throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Seat is reserved (guest cannot buy without token): " + code);
                 }
 
                 String ownerKey = reservedByOwnerKey.get(code);
 
                 if (customerOwnerKey != null) {
                     if (ownerKey == null || !ownerKey.equals(customerOwnerKey)) {
-                        throw new IllegalStateException("Seat reserved by another customer: " + code);
+                        throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Seat reserved by another customer: " + code);
                     }
                 }
 
                 if (guestOwnerKey != null) {
                     if (ownerKey == null || !ownerKey.equals(guestOwnerKey)) {
-                        throw new IllegalStateException("Seat reserved by someone else (invalid token): " + code);
+                        throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Seat reserved by someone else (invalid token): " + code);
                     }
                 }
             }
@@ -204,7 +210,7 @@ public class Screening {
             }
         }
 
-        // 3) Reservation cleanup
+        // 3) pl.edu.agh.zurawskipiotr.cinemachain.model.Reservation cleanup
         if (customerOwnerKey != null) {
             removeSeatCodesFromReservations(customerOwnerKey, seatCodes);
         }
@@ -216,7 +222,7 @@ public class Screening {
     }
 
     // =========================================================
-    // Ticket verification / preview
+    // pl.edu.agh.zurawskipiotr.cinemachain.model.Ticket verification / preview
     // =========================================================
 
     public Ticket findTicketByCode(String ticketCode) {
@@ -248,7 +254,7 @@ public class Screening {
     // PRINTING (demo/debug helpers)
 
     public void printSummary() {
-        System.out.println("Screening: " + movie.title() + " | " + startTime
+        System.out.println("pl.edu.agh.zurawskipiotr.cinemachain.model.Screening: " + movie.title() + " | " + startTime
                 + " | hall=" + hall.getName()
                 + (isVip ? " | VIP" : "")
                 + (isThreeD ? " | 3D" : ""));

@@ -1,3 +1,9 @@
+package pl.edu.agh.zurawskipiotr.cinemachain;
+
+import pl.edu.agh.zurawskipiotr.cinemachain.enums.Genre;
+import pl.edu.agh.zurawskipiotr.cinemachain.enums.SeatCategory;
+import pl.edu.agh.zurawskipiotr.cinemachain.model.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -74,7 +80,7 @@ public class Main {
         );
         starowka.addScreening(sStarowka);
 
-        // Screening outside the "next week" window (should not appear in programme for next week)
+        // pl.edu.agh.zurawskipiotr.cinemachain.model.Screening outside the "next week" window (should not appear in programme for next week)
         Screening outsideWeek = new Screening(
                 avatar,
                 hallTarasy1,
@@ -87,13 +93,13 @@ public class Main {
         // ===== Programme (next week) =====
         chain.printProgramme();
 
-        // ===== Seat map (pretty) + reservations + purchases =====
+        // ===== pl.edu.agh.zurawskipiotr.cinemachain.model.Seat map (pretty) + reservations + purchases =====
         System.out.println();
-        System.out.println("=== Seat map: initial state ===");
+        System.out.println("=== pl.edu.agh.zurawskipiotr.cinemachain.model.Seat map: initial state ===");
         sTarasy.printSeatMap();
 
         System.out.println();
-        System.out.println("=== Customer reservation (should create RESERVED state) ===");
+        System.out.println("=== pl.edu.agh.zurawskipiotr.cinemachain.model.Customer reservation (should create RESERVED state) ===");
         sTarasy.reservePlaces(c1, "A6", "A7");
         sTarasy.printReservations();
         sTarasy.printSeatMap();
@@ -116,7 +122,7 @@ public class Main {
         sTarasy.printSeatMap();
 
         System.out.println();
-        System.out.println("=== Customer purchase (FREE seats) ===");
+        System.out.println("=== pl.edu.agh.zurawskipiotr.cinemachain.model.Customer purchase (FREE seats) ===");
         List<TicketPurchase> p1 = chain.buyTickets(sTarasy, c2, "A1", "A2");
         for (TicketPurchase tp : p1) {
             System.out.println("Bought: " + tp.ticket().getCode() + " | seat=" + tp.ticket().getSeat().getCode() + " | price=" + tp.price());
@@ -124,7 +130,7 @@ public class Main {
         sTarasy.printSeatMap();
 
         System.out.println();
-        System.out.println("=== Customer purchase of own RESERVED seats ===");
+        System.out.println("=== pl.edu.agh.zurawskipiotr.cinemachain.model.Customer purchase of own RESERVED seats ===");
         List<TicketPurchase> p2 = chain.buyTickets(sTarasy, c1, "A6", "A7");
         for (TicketPurchase tp : p2) {
             System.out.println("Bought: " + tp.ticket().getCode() + " | seat=" + tp.ticket().getSeat().getCode() + " | price=" + tp.price());
@@ -152,14 +158,14 @@ public class Main {
                 + " | seat=" + found.getSeat().getCode());
 
         System.out.println();
-        System.out.println("=== Customer tickets ===");
+        System.out.println("=== pl.edu.agh.zurawskipiotr.cinemachain.model.Customer tickets ===");
         c1.printOwnTickets();
         c2.printOwnTickets();
 
         System.out.println();
         chain.printTicketRegistrySummary();
 
-        // ===== Show that VIP/3D pricing is also present on another screening =====
+        // ===== Shows that VIP/3D pricing is also present on another screening =====
         System.out.println();
         System.out.println("=== Pricing example for VIP+3D screening ===");
         sVivo.printSeatMap();

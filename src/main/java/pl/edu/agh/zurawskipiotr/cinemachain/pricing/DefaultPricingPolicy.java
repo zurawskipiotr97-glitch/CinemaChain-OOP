@@ -1,3 +1,9 @@
+package pl.edu.agh.zurawskipiotr.cinemachain.pricing;
+
+import pl.edu.agh.zurawskipiotr.cinemachain.model.Screening;
+import pl.edu.agh.zurawskipiotr.cinemachain.model.Seat;
+import pl.edu.agh.zurawskipiotr.cinemachain.enums.SeatCategory;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.EnumMap;

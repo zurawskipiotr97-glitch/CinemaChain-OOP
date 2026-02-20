@@ -1,3 +1,5 @@
+package pl.edu.agh.zurawskipiotr.cinemachain.model;
+
 import java.util.UUID;
 
 public class Ticket {
@@ -31,7 +33,7 @@ public class Ticket {
 
     @Override
     public String toString() {
-        return "Ticket{" +
+        return "pl.edu.agh.zurawskipiotr.cinemachain.model.Ticket{" +
                 "code='" + code + '\'' +
                 ", movie=" + screening.getMovie().title() +
                 ", time=" + screening.getStartTime() +

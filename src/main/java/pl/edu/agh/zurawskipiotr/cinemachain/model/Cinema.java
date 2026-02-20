@@ -1,3 +1,5 @@
+package pl.edu.agh.zurawskipiotr.cinemachain.model;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -55,7 +57,7 @@ public class Cinema {
         if (hall == null) throw new IllegalArgumentException("hall is required");
         boolean exists = rooms.stream().anyMatch(h -> h.getName().equalsIgnoreCase(hall.getName()));
         if (exists) {
-            throw new IllegalStateException("Hall with name already exists: " + hall.getName());
+            throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Hall with name already exists: " + hall.getName());
         }
         rooms.add(hall);
     }
@@ -63,7 +65,7 @@ public class Cinema {
     public void addScreening(Screening screening) {
         if (screening == null) throw new IllegalArgumentException("screening is required");
         if (!rooms.contains(screening.getHall())) {
-            throw new IllegalStateException("Screening hall is not registered in this cinema: " + screening.getHall().getName());
+            throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Screening hall is not registered in this cinema: " + screening.getHall().getName());
         }
         screenings.add(screening);
     }

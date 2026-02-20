@@ -1,3 +1,5 @@
+package pl.edu.agh.zurawskipiotr.cinemachain.model;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -35,7 +37,7 @@ public class CinemaChain {
     public void addCinema(Cinema cinema) {
         Objects.requireNonNull(cinema, "cinema");
         if (cinemas.containsKey(cinema.getId())) {
-            throw new IllegalStateException("Cinema with id already exists: " + cinema.getId());
+            throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Cinema with id already exists: " + cinema.getId());
         }
         cinemas.put(cinema.getId(), cinema);
     }
@@ -49,7 +51,7 @@ public class CinemaChain {
         Objects.requireNonNull(customer, "customer");
 
         if (customers.containsKey(customer.getId())) {
-            throw new IllegalStateException("Customer with id already exists: " + customer.getId());
+            throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Customer with id already exists: " + customer.getId());
         }
 
         String email = customer.getEmail();
@@ -61,7 +63,7 @@ public class CinemaChain {
                     .map(e -> e.trim().toLowerCase(Locale.ROOT))
                     .anyMatch(e -> e.equals(normalized));
             if (emailTaken) {
-                throw new IllegalStateException("Customer with email already exists: " + email);
+                throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Customer with email already exists: " + email);
             }
         }
 
@@ -92,11 +94,11 @@ public class CinemaChain {
         Objects.requireNonNull(movie, "movie");
         String title = movie.title();
         if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("Movie title is required");
+            throw new IllegalArgumentException("pl.edu.agh.zurawskipiotr.cinemachain.model.Movie title is required");
         }
         boolean exists = movies.stream().anyMatch(m -> m.title().equalsIgnoreCase(title));
         if (exists) {
-            throw new IllegalStateException("Movie already exists in catalogue: " + title);
+            throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Movie already exists in catalogue: " + title);
         }
         movies.add(movie);
     }
@@ -110,10 +112,10 @@ public class CinemaChain {
         Objects.requireNonNull(ticket, "ticket");
         String code = ticket.getCode();
         if (code == null || code.isBlank()) {
-            throw new IllegalArgumentException("Ticket code is required");
+            throw new IllegalArgumentException("pl.edu.agh.zurawskipiotr.cinemachain.model.Ticket code is required");
         }
         if (ticketsByCode.containsKey(code)) {
-            throw new IllegalStateException("Ticket code already registered: " + code);
+            throw new IllegalStateException("pl.edu.agh.zurawskipiotr.cinemachain.model.Ticket code already registered: " + code);
         }
         ticketsByCode.put(code, ticket);
     }
@@ -124,10 +126,10 @@ public class CinemaChain {
     }
 
     // =========================================================
-    // Ticket sales via chain (registering issued ticket codes)
+    // pl.edu.agh.zurawskipiotr.cinemachain.model.Ticket sales via chain (registering issued ticket codes)
     // =========================================================
 
-    // Customer purchase (FREE + own RESERVED)
+    // pl.edu.agh.zurawskipiotr.cinemachain.model.Customer purchase (FREE + own RESERVED)
     public List<TicketPurchase> buyTickets(Screening screening, Customer customer, String... seatCodes) {
         Objects.requireNonNull(screening, "screening");
         Objects.requireNonNull(customer, "customer");

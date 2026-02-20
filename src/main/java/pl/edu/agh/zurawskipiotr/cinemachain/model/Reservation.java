@@ -1,3 +1,5 @@
+package pl.edu.agh.zurawskipiotr.cinemachain.model;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;

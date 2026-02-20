@@ -1,3 +1,7 @@
+package pl.edu.agh.zurawskipiotr.cinemachain.model;
+
+import pl.edu.agh.zurawskipiotr.cinemachain.enums.SeatCategory;
+
 import java.util.Objects;
 
 public record Seat(String row, int number, SeatCategory category) {
@@ -7,7 +11,7 @@ public record Seat(String row, int number, SeatCategory category) {
         Objects.requireNonNull(category, "category");
 
         if (number <= 0) {
-            throw new IllegalArgumentException("Seat number must be > 0");
+            throw new IllegalArgumentException("pl.edu.agh.zurawskipiotr.cinemachain.model.Seat number must be > 0");
         }
     }
 
