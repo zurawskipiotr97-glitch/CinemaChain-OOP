@@ -46,20 +46,13 @@ public class Cinema {
     // REPERTUAR NA NAJBLIŻSZY TYDZIEŃ
     // =========================================================
 
-    /**
-     * Najbliższy tydzień: od dzisiaj 00:00 do (dzisiaj+8) 00:00,
-     * czyli obejmuje dni: dziś..dziś+7 (8 dni kalendarzowych).
-     */
     public List<Screening> getProgrammeForNextWeek() {
         LocalDate today = LocalDate.now();
         LocalDateTime fromInclusive = today.atStartOfDay();
-        LocalDateTime toExclusive = today.plusDays(8).atStartOfDay();
+        LocalDateTime toExclusive = today.plusDays(7).atStartOfDay(); // było plusDays(8)
         return getProgrammeBetween(fromInclusive, toExclusive);
     }
 
-    /**
-     * Przedział [fromInclusive, toExclusive)
-     */
     public List<Screening> getProgrammeBetween(LocalDateTime fromInclusive, LocalDateTime toExclusive) {
         List<Screening> result = new ArrayList<>();
         for (Screening s : screenings) {
@@ -72,14 +65,11 @@ public class Cinema {
         return result;
     }
 
-    /**
-     * Wymóg z README: repertuar na najbliższy tydzień.
-     */
     public void printProgramme() {
         List<Screening> week = getProgrammeForNextWeek();
 
         System.out.println("Repertuar kina: " + name + " (" + address + ")");
-        System.out.println("Zakres: " + LocalDate.now() + " -> " + LocalDate.now().plusDays(7));
+        System.out.println("Zakres: " + LocalDate.now() + " -> " + LocalDate.now().plusDays(6));
         System.out.println();
 
         if (week.isEmpty()) {

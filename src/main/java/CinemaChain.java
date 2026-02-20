@@ -85,7 +85,7 @@ public class CinemaChain {
 
     public void printProgramme() {
         System.out.println("Repertuar sieci: " + chainName);
-        System.out.println("Zakres: " + LocalDate.now() + " -> " + LocalDate.now().plusDays(7));
+        System.out.println("Zakres: " + LocalDate.now() + " -> " + LocalDate.now().plusDays(6));
         System.out.println();
 
         if (cinemas.isEmpty()) {

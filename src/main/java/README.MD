@@ -1,6 +1,6 @@
 Celem zadania jest zaprojektowanie i implementacja systemu wspierającego funkcjonowanie sieci multipleksów (a więc mówimy o obsłudze wielu lokalizacji, a w każdej z nich jest wiele sal kinowych).
 
-
+![img.png](img.png)
 
 Proszę o:
 
@@ -19,6 +19,9 @@ chcemy mieć możliwość obsługi seansów VIP i 3D
 chcemy mieć możliwość sprawdzenia swoich biletów
 chcemy mieć możliwość zakupu biletów bez konta
 chcemy zobaczyć przykład wywołania w ramach funkcji main() - zobacz przykład na końcu!
+
+![img_1.png](img_1.png)
+
 Dla uproszczenia NIE ZAJMUJEMY SIĘ (nie modelujemy na diagramie klas):
 
 płatnościami online

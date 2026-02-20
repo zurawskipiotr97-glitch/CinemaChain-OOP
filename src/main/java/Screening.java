@@ -175,11 +175,16 @@ public class Screening {
                 return purchases;
         }
 
-        // (NOWE) Gość kupuje RESERVED używając tokena
-        public List<TicketPurchase> buyTickets(String reservationToken, String... seatCodes) {
+        // ✅ Gość kupuje RESERVED używając tokena — FIX: token + MIN 1 miejsce
+        public List<TicketPurchase> buyTickets(String reservationToken, String firstSeatCode, String... otherSeatCodes) {
                 if (reservationToken == null || reservationToken.isBlank()) {
                         throw new IllegalArgumentException("Reservation token is required");
                 }
+                if (firstSeatCode == null || firstSeatCode.isBlank()) {
+                        throw new IllegalArgumentException("At least one seat code is required");
+                }
+
+                String[] seatCodes = mergeFirstAndVarargs(firstSeatCode, otherSeatCodes);
                 validateSeatCodesProvided(seatCodes);
 
                 String guestOwnerKey = ownerKeyForGuest(reservationToken);
@@ -227,7 +232,9 @@ public class Screening {
 
         // overload: token + Seat...
         public List<TicketPurchase> buyTickets(String reservationToken, Seat... seats) {
-                return buyTickets(reservationToken, toSeatCodes(seats));
+                String[] codes = toSeatCodes(seats);
+                // MIN 1 miejsce gwarantowane przez toSeatCodes
+                return buyTickets(reservationToken, codes[0], Arrays.copyOfRange(codes, 1, codes.length));
         }
 
         // =========================================================
@@ -298,6 +305,14 @@ public class Screening {
                 return codes;
         }
 
+        private String[] mergeFirstAndVarargs(String first, String... rest) {
+                int restLen = (rest == null) ? 0 : rest.length;
+                String[] out = new String[1 + restLen];
+                out[0] = first;
+                if (restLen > 0) System.arraycopy(rest, 0, out, 1, restLen);
+                return out;
+        }
+
         private String ownerKeyForCustomer(Customer customer) {
                 return "C:" + customer.getId();
         }
@@ -323,26 +338,43 @@ public class Screening {
 
         public Map<String, SeatStatus> seatStatus() { return Collections.unmodifiableMap(seatStatus); }
 
-        // Zakup z rejestracją w CinemaChain (gość / bez tokena)
-        public List<TicketPurchase> buyTickets(CinemaChain chain, String... seatCodes) {
-                List<TicketPurchase> purchases = buyTickets(seatCodes); // używa Twojej logiki
-                for (TicketPurchase tp : purchases) {
-                        chain.addTicket(tp.ticket()); // UWAGA: jeśli TicketPurchase nie ma ticket(), zobacz niżej
-                }
-                return purchases;
-        }
+        // =========================================================
+        // ZAKUP + REJESTRACJA W CinemaChain (bez konfliktu overloadów)
+        // =========================================================
 
-        // Zakup z rejestracją w CinemaChain (gość z tokenem)
-        public List<TicketPurchase> buyTickets(CinemaChain chain, String reservationToken, String... seatCodes) {
-                List<TicketPurchase> purchases = buyTickets(reservationToken, seatCodes);
+        // Gość / bez tokena: rejestracja w CinemaChain
+        public List<TicketPurchase> buyTicketsAndRegister(CinemaChain chain, String... seatCodes) {
+                Objects.requireNonNull(chain, "chain");
+                List<TicketPurchase> purchases = buyTickets(seatCodes);
                 for (TicketPurchase tp : purchases) {
                         chain.addTicket(tp.ticket());
                 }
                 return purchases;
         }
 
-        // Zakup z rejestracją w CinemaChain (klient)
-        public List<TicketPurchase> buyTickets(CinemaChain chain, Customer customer, String... seatCodes) {
+        // Gość z tokenem: rejestracja w CinemaChain
+        public List<TicketPurchase> buyTicketsWithReservationAndRegister(
+                CinemaChain chain,
+                String reservationToken,
+                String firstSeatCode,
+                String... otherSeatCodes
+        ) {
+                Objects.requireNonNull(chain, "chain");
+                List<TicketPurchase> purchases = buyTickets(reservationToken, firstSeatCode, otherSeatCodes);
+                for (TicketPurchase tp : purchases) {
+                        chain.addTicket(tp.ticket());
+                }
+                return purchases;
+        }
+
+        // Klient: rejestracja w CinemaChain
+        public List<TicketPurchase> buyTicketsForCustomerAndRegister(
+                CinemaChain chain,
+                Customer customer,
+                String... seatCodes
+        ) {
+                Objects.requireNonNull(chain, "chain");
+                Objects.requireNonNull(customer, "customer");
                 List<TicketPurchase> purchases = buyTickets(customer, seatCodes);
                 for (TicketPurchase tp : purchases) {
                         chain.addTicket(tp.ticket());
