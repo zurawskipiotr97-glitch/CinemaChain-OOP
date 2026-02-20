@@ -18,8 +18,8 @@ public class Screening {
     /**
      * seatCode -> ownerKey
      * ownerKey format:
-     * - C:<customerId>
-     * - G:<token>
+     *   - C:<customerId>
+     *   - G:<token>
      */
     private final Map<String, String> reservedByOwnerKey = new HashMap<>();
 
@@ -258,39 +258,87 @@ public class Screening {
      * Prints seat status for the whole hall.
      * Format: <seatCode> -> <status> [(ownerKey)]
      */
+    /**
+     * Prints a compact, row-based seat map.
+     *
+     * Legend:
+     *   . = FREE
+     *   R = RESERVED
+     *   X = SOLD
+     */
     public void printSeatMap() {
         cleanupExpiredReservations(LocalDateTime.now());
         printSummary();
 
         Map<String, List<Seat>> seatsByRow = new TreeMap<>();
+        int maxNumber = 0;
         for (Seat seat : hall.getSeats()) {
             seatsByRow.computeIfAbsent(seat.row(), r -> new ArrayList<>()).add(seat);
+            maxNumber = Math.max(maxNumber, seat.number());
         }
+
+        int freeCount = 0;
+        int reservedCount = 0;
+        int soldCount = 0;
+
+        StringBuilder header = new StringBuilder();
+        header.append("     ");
+        for (int n = 1; n <= maxNumber; n++) {
+            header.append(String.format("%3d", n));
+        }
+        System.out.println(header);
+        System.out.println("     " + "-".repeat(Math.max(0, maxNumber * 3)));
 
         for (Map.Entry<String, List<Seat>> entry : seatsByRow.entrySet()) {
             List<Seat> rowSeats = new ArrayList<>(entry.getValue());
             rowSeats.sort(Comparator.comparingInt(Seat::number));
 
-            StringBuilder line = new StringBuilder();
-            line.append("Row ").append(entry.getKey()).append(": ");
+            Map<Integer, Seat> byNumber = new HashMap<>();
+            for (Seat s : rowSeats) {
+                byNumber.put(s.number(), s);
+            }
 
-            for (Seat seat : rowSeats) {
+            StringBuilder line = new StringBuilder();
+            line.append(String.format("%3s |", entry.getKey()));
+
+            for (int n = 1; n <= maxNumber; n++) {
+                Seat seat = byNumber.get(n);
+                if (seat == null) {
+                    line.append("   ");
+                    continue;
+                }
+
                 String code = seat.getCode();
                 SeatStatus status = seatStatus.get(code);
 
-                line.append(code).append("=").append(status);
-
-                if (status == SeatStatus.RESERVED) {
-                    String ownerKey = reservedByOwnerKey.get(code);
-                    if (ownerKey != null) {
-                        line.append("(").append(ownerKey).append(")");
-                    }
+                char mark;
+                if (status == SeatStatus.SOLD) {
+                    mark = 'X';
+                    soldCount++;
+                } else if (status == SeatStatus.RESERVED) {
+                    mark = 'R';
+                    reservedCount++;
+                } else {
+                    mark = '.';
+                    freeCount++;
                 }
-                line.append("  ");
+                line.append(String.format("%3s", mark));
             }
-            System.out.println(line.toString().trim());
+            System.out.println(line);
+        }
+
+        System.out.println("Legend: . = FREE | R = RESERVED | X = SOLD");
+        System.out.println("Totals: FREE=" + freeCount + " | RESERVED=" + reservedCount + " | SOLD=" + soldCount);
+
+        if (!reservationsByOwnerKey.isEmpty()) {
+            System.out.println("Reserved seats detail:");
+            reservationsByOwnerKey.values().stream()
+                    .sorted(Comparator.comparing(Reservation::ownerKey))
+                    .forEach(r -> System.out.println("- " + r.ownerKey() + " -> " + r.seatCodes() + " | createdAt=" + r.createdAt()));
         }
     }
+
+
 
 
     /**
@@ -388,31 +436,12 @@ public class Screening {
     // GETTERY
     // =========================================================
 
-    public Movie getMovie() {
-        return movie;
-    }
+    public Movie getMovie() { return movie; }
+    public Hall getHall() { return hall; }
+    public boolean isVip() { return isVip; }
+    public boolean isThreeD() { return isThreeD; }
+    public LocalDateTime getStartTime() { return startTime; }
+    public PricingPolicy getPricingPolicy() { return pricingPolicy; }
 
-    public Hall getHall() {
-        return hall;
-    }
-
-    public boolean isVip() {
-        return isVip;
-    }
-
-    public boolean isThreeD() {
-        return isThreeD;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public PricingPolicy getPricingPolicy() {
-        return pricingPolicy;
-    }
-
-    public Map<String, SeatStatus> seatStatus() {
-        return Collections.unmodifiableMap(seatStatus);
-    }
+    public Map<String, SeatStatus> seatStatus() { return Collections.unmodifiableMap(seatStatus); }
 }
