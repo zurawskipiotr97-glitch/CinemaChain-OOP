@@ -1,8 +1,7 @@
 package pl.edu.agh.zurawskipiotr.cinemachain.pricing;
 
-import pl.edu.agh.zurawskipiotr.cinemachain.model.Screening;
-import pl.edu.agh.zurawskipiotr.cinemachain.model.Seat;
-import pl.edu.agh.zurawskipiotr.cinemachain.enums.SeatCategory;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.venue.Seat;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.venue.SeatCategory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,18 +40,18 @@ public class DefaultPricingPolicy implements PricingPolicy {
     }
 
     @Override
-    public BigDecimal calculatePrice(Screening screening, Seat seat) {
+    public BigDecimal calculatePrice(Seat seat, boolean vipScreening, boolean threeD) {
         BigDecimal price = basePrices.get(seat.category());
 
         if (price == null) {
             throw new IllegalStateException("No base price for category: " + seat.category());
         }
 
-        if (screening.isThreeD()) {
+        if (threeD) {
             price = price.add(threeDSurcharge);
         }
 
-        if (screening.isVip()) {
+        if (vipScreening) {
             price = price.add(vipScreeningSurcharge);
         }
 

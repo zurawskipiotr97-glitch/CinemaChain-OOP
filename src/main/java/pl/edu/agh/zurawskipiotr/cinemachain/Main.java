@@ -1,8 +1,16 @@
 package pl.edu.agh.zurawskipiotr.cinemachain;
 
-import pl.edu.agh.zurawskipiotr.cinemachain.enums.Genre;
-import pl.edu.agh.zurawskipiotr.cinemachain.enums.SeatCategory;
-import pl.edu.agh.zurawskipiotr.cinemachain.model.*;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.catalog.Genre;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.venue.SeatCategory;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.catalog.Movie;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.chain.CinemaChain;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.customer.Customer;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.screening.Screening;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.sales.Ticket;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.sales.TicketPurchase;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.venue.Cinema;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.venue.Hall;
+import pl.edu.agh.zurawskipiotr.cinemachain.domain.venue.Seat;
 
 import java.time.LocalDateTime;
 import java.util.List;
