@@ -49,9 +49,6 @@ Możesz:
 
 ------------------------------------------------------------------------
 
-### Plik źródłowy: README.md
-
-
 Celem zadania jest zaprojektowanie i implementacja systemu wspierającego funkcjonowanie sieci multipleksów (a więc mówimy o obsłudze wielu lokalizacji, a w każdej z nich jest wiele sal kinowych).
 
 ![img.png](docs/images/img.png)
