@@ -80,6 +80,44 @@ public class CinemaChain {
     }
 
     // =========================================================
+    // ZAKUPY (OPCJA 2): CinemaChain sprzedaje i rejestruje bilety
+    // =========================================================
+
+    // Klient kupuje (FREE + swoje RESERVED)
+    public List<TicketPurchase> buyTickets(Screening screening, Customer customer, String... seatCodes) {
+        Objects.requireNonNull(screening, "screening");
+        Objects.requireNonNull(customer, "customer");
+
+        List<TicketPurchase> purchases = screening.buyTicketsForCustomer(customer, seatCodes);
+        registerPurchases(purchases);
+        return purchases;
+    }
+
+    // Gość kupuje bez rezerwacji (tylko FREE)
+    public List<TicketPurchase> buyTicketsAsGuest(Screening screening, String... seatCodes) {
+        Objects.requireNonNull(screening, "screening");
+
+        List<TicketPurchase> purchases = screening.buyTicketsAsGuest(seatCodes);
+        registerPurchases(purchases);
+        return purchases;
+    }
+
+    // Gość kupuje używając tokena (FREE + tokenowe RESERVED)
+    public List<TicketPurchase> buyTicketsWithToken(Screening screening, String token, String... seatCodes) {
+        Objects.requireNonNull(screening, "screening");
+
+        List<TicketPurchase> purchases = screening.buyTicketsAsGuestWithToken(token, seatCodes);
+        registerPurchases(purchases);
+        return purchases;
+    }
+
+    private void registerPurchases(List<TicketPurchase> purchases) {
+        for (TicketPurchase tp : purchases) {
+            addTicket(tp.ticket());
+        }
+    }
+
+    // =========================================================
     // REPERTUAR SIECI NA NAJBLIŻSZY TYDZIEŃ
     // =========================================================
 
@@ -95,7 +133,6 @@ public class CinemaChain {
 
         boolean any = false;
 
-        // kino po kinie (czytelnie i zgodnie z logiką domeny)
         for (Cinema cinema : cinemas.values()) {
             List<Screening> week = cinema.getProgrammeForNextWeek();
             if (week.isEmpty()) continue;
@@ -106,9 +143,6 @@ public class CinemaChain {
             System.out.println("Kino: " + cinema.getName() + " (" + cinema.getAddress() + ")");
             System.out.println("##################################################");
 
-            // reuse printowania z Cinema: możesz albo wywołać cinema.printProgramme()
-            // ale to wydrukuje też nagłówek "Repertuar kina" drugi raz.
-            // więc drukujemy tu tylko seanse:
             printProgrammeBlock(week);
             System.out.println();
         }
@@ -126,7 +160,6 @@ public class CinemaChain {
     private void printProgrammeBlock(List<Screening> week) {
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
 
-        // grupowanie po dacie
         Map<LocalDate, List<Screening>> byDate = new LinkedHashMap<>();
         for (Screening s : week) {
             LocalDate d = s.getStartTime().toLocalDate();
@@ -163,5 +196,4 @@ public class CinemaChain {
     public Ticket getTicketByCode(String code) {
         return findTicketByCode(code);
     }
-
 }

@@ -59,37 +59,26 @@ public class Screening {
         }
 
         // =========================================================
-        // REZERWACJE - OVERLOADY
+        // REZERWACJE
         // =========================================================
 
-        // (A) Klient: rezerwacja po kodach
+        // Klient: rezerwacja po kodach
         public void reservePlaces(Customer customer, String... seatCodes) {
                 Objects.requireNonNull(customer, "customer");
                 reservePlacesInternal(ownerKeyForCustomer(customer), seatCodes);
         }
 
-        // (B) Klient: rezerwacja po Seat...
-        public void reservePlaces(Customer customer, Seat... seats) {
-                Objects.requireNonNull(customer, "customer");
-                reservePlaces(customer, toSeatCodes(seats));
-        }
-
-        // (C) Gość: rezerwacja po kodach -> ZWRACA TOKEN
+        // Gość: rezerwacja po kodach -> ZWRACA TOKEN
         public String reservePlaces(String... seatCodes) {
                 String token = generateReservationToken();
                 reservePlacesInternal(ownerKeyForGuest(token), seatCodes);
                 return token;
         }
 
-        // (D) Gość: rezerwacja po Seat... -> ZWRACA TOKEN
-        public String reservePlaces(Seat... seats) {
-                return reservePlaces(toSeatCodes(seats));
-        }
-
         private void reservePlacesInternal(String ownerKey, String... seatCodes) {
                 validateSeatCodesProvided(seatCodes);
 
-                // 1) walidacja: wszystkie miejsca muszą być FREE
+                // wszystkie miejsca muszą być FREE
                 for (String code : seatCodes) {
                         SeatStatus status = seatStatus.get(code);
                         if (status == null) throw new IllegalArgumentException("No such seat in this hall: " + code);
@@ -98,7 +87,7 @@ public class Screening {
                         }
                 }
 
-                // 2) rezerwacja: ustaw RESERVED + zapamiętaj właściciela
+                // rezerwacja
                 for (String code : seatCodes) {
                         seatStatus.put(code, SeatStatus.RESERVED);
                         reservedByOwnerKey.put(code, ownerKey);
@@ -110,21 +99,42 @@ public class Screening {
         }
 
         // =========================================================
-        // KUPNO BILETÓW
+        // ZAKUPY (JAWNE NAZWY -> ZERO AMBIGUITY)
         // =========================================================
 
-        // gość bez rezerwacji: może kupić tylko FREE (RESERVED zablokowane)
-        public List<TicketPurchase> buyTickets(String... seatCodes) {
-                return buyTickets((Customer) null, seatCodes);
+        // Gość bez tokena: tylko FREE
+        public List<TicketPurchase> buyTicketsAsGuest(String... seatCodes) {
+                return buyTicketsInternal(null, null, seatCodes);
         }
 
-        // klient: może kupić FREE oraz RESERVED tylko jeśli to jego rezerwacja
-        public List<TicketPurchase> buyTickets(Customer customerOrNull, String... seatCodes) {
+        // Klient: FREE + RESERVED tylko swoje
+        public List<TicketPurchase> buyTicketsForCustomer(Customer customer, String... seatCodes) {
+                Objects.requireNonNull(customer, "customer");
+                return buyTicketsInternal(customer, null, seatCodes);
+        }
+
+        // Gość z tokenem: FREE + RESERVED tylko tokenowe
+        public List<TicketPurchase> buyTicketsAsGuestWithToken(String reservationToken, String... seatCodes) {
+                if (reservationToken == null || reservationToken.isBlank()) {
+                        throw new IllegalArgumentException("Reservation token is required");
+                }
+                return buyTicketsInternal(null, reservationToken, seatCodes);
+        }
+
+        /**
+         * Wspólna logika zakupu:
+         * - customerOrNull != null  => klient
+         * - tokenOrNull != null     => gość z tokenem
+         * - oba null                => gość bez tokena
+         */
+        private List<TicketPurchase> buyTicketsInternal(Customer customerOrNull, String tokenOrNull, String... seatCodes) {
                 validateSeatCodesProvided(seatCodes);
 
                 String customerOwnerKey = (customerOrNull == null) ? null : ownerKeyForCustomer(customerOrNull);
+                String guestOwnerKey = (tokenOrNull == null) ? null : ownerKeyForGuest(tokenOrNull);
+                boolean isGuestWithoutToken = (customerOrNull == null && tokenOrNull == null);
 
-                // 1) WALIDACJA UPRAWNIEŃ DO ZAKUPU
+                // 1) WALIDACJA UPRAWNIEŃ
                 for (String code : seatCodes) {
                         SeatStatus status = seatStatus.get(code);
                         if (status == null) throw new IllegalArgumentException("No such seat in this hall: " + code);
@@ -134,16 +144,24 @@ public class Screening {
                         }
 
                         if (status == SeatStatus.RESERVED) {
-                                // gość bez tokena nie może kupić zarezerwowanego miejsca
-                                if (customerOrNull == null) {
+                                if (isGuestWithoutToken) {
                                         throw new IllegalStateException("Seat is reserved (guest cannot buy without token): " + code);
                                 }
+
                                 String ownerKey = reservedByOwnerKey.get(code);
-                                if (ownerKey == null || !ownerKey.equals(customerOwnerKey)) {
-                                        throw new IllegalStateException("Seat reserved by another customer: " + code);
+
+                                if (customerOwnerKey != null) {
+                                        if (ownerKey == null || !ownerKey.equals(customerOwnerKey)) {
+                                                throw new IllegalStateException("Seat reserved by another customer: " + code);
+                                        }
+                                }
+
+                                if (guestOwnerKey != null) {
+                                        if (ownerKey == null || !ownerKey.equals(guestOwnerKey)) {
+                                                throw new IllegalStateException("Seat reserved by someone else (invalid token): " + code);
+                                        }
                                 }
                         }
-                        // FREE -> OK
                 }
 
                 // 2) REALIZACJA ZAKUPU
@@ -152,14 +170,12 @@ public class Screening {
                         Seat seat = findSeatByCode(code);
 
                         BigDecimal price = pricingPolicy.calculatePrice(this, seat);
-                        Ticket ticket = new Ticket(this, seat, customerOrNull);
+                        Ticket ticket = new Ticket(this, seat, customerOrNull); // owner=null dla gościa
 
                         purchases.add(new TicketPurchase(ticket, price));
                         seatStatus.put(code, SeatStatus.SOLD);
 
                         reservedByOwnerKey.remove(code);
-
-                        // REJESTR LOKALNY
                         soldTicketsByCode.put(ticket.getCode(), ticket);
 
                         if (customerOrNull != null) {
@@ -167,74 +183,15 @@ public class Screening {
                         }
                 }
 
-                // 3) sprzątanie rezerwacji tylko właściciela (klient)
-                if (customerOrNull != null) {
+                // 3) SPRZĄTANIE REZERWACJI
+                if (customerOwnerKey != null) {
                         removeSeatCodesFromReservations(customerOwnerKey, seatCodes);
                 }
+                if (guestOwnerKey != null) {
+                        removeSeatCodesFromReservations(guestOwnerKey, seatCodes);
+                }
 
                 return purchases;
-        }
-
-        // ✅ Gość kupuje RESERVED używając tokena — FIX: token + MIN 1 miejsce
-        public List<TicketPurchase> buyTickets(String reservationToken, String firstSeatCode, String... otherSeatCodes) {
-                if (reservationToken == null || reservationToken.isBlank()) {
-                        throw new IllegalArgumentException("Reservation token is required");
-                }
-                if (firstSeatCode == null || firstSeatCode.isBlank()) {
-                        throw new IllegalArgumentException("At least one seat code is required");
-                }
-
-                String[] seatCodes = mergeFirstAndVarargs(firstSeatCode, otherSeatCodes);
-                validateSeatCodesProvided(seatCodes);
-
-                String guestOwnerKey = ownerKeyForGuest(reservationToken);
-
-                // 1) WALIDACJA UPRAWNIEŃ DO ZAKUPU (dla gościa z tokenem)
-                for (String code : seatCodes) {
-                        SeatStatus status = seatStatus.get(code);
-                        if (status == null) throw new IllegalArgumentException("No such seat in this hall: " + code);
-
-                        if (status == SeatStatus.SOLD) {
-                                throw new IllegalStateException("Seat already sold: " + code);
-                        }
-
-                        if (status == SeatStatus.RESERVED) {
-                                String ownerKey = reservedByOwnerKey.get(code);
-                                if (ownerKey == null || !ownerKey.equals(guestOwnerKey)) {
-                                        throw new IllegalStateException("Seat reserved by someone else (invalid token): " + code);
-                                }
-                        }
-                        // FREE -> OK (gość z tokenem może też kupić FREE)
-                }
-
-                // 2) REALIZACJA ZAKUPU (Ticket ma customer=null)
-                List<TicketPurchase> purchases = new ArrayList<>(seatCodes.length);
-                for (String code : seatCodes) {
-                        Seat seat = findSeatByCode(code);
-
-                        BigDecimal price = pricingPolicy.calculatePrice(this, seat);
-                        Ticket ticket = new Ticket(this, seat, null);
-
-                        purchases.add(new TicketPurchase(ticket, price));
-                        seatStatus.put(code, SeatStatus.SOLD);
-
-                        reservedByOwnerKey.remove(code);
-
-                        // REJESTR LOKALNY
-                        soldTicketsByCode.put(ticket.getCode(), ticket);
-                }
-
-                // 3) sprzątanie rezerwacji gościa (token)
-                removeSeatCodesFromReservations(guestOwnerKey, seatCodes);
-
-                return purchases;
-        }
-
-        // overload: token + Seat...
-        public List<TicketPurchase> buyTickets(String reservationToken, Seat... seats) {
-                String[] codes = toSeatCodes(seats);
-                // MIN 1 miejsce gwarantowane przez toSeatCodes
-                return buyTickets(reservationToken, codes[0], Arrays.copyOfRange(codes, 1, codes.length));
         }
 
         // =========================================================
@@ -293,26 +250,6 @@ public class Screening {
                 }
         }
 
-        private String[] toSeatCodes(Seat... seats) {
-                if (seats == null || seats.length == 0) {
-                        throw new IllegalArgumentException("No seats provided");
-                }
-                String[] codes = new String[seats.length];
-                for (int i = 0; i < seats.length; i++) {
-                        if (seats[i] == null) throw new IllegalArgumentException("Seat at index " + i + " is null");
-                        codes[i] = seats[i].getCode();
-                }
-                return codes;
-        }
-
-        private String[] mergeFirstAndVarargs(String first, String... rest) {
-                int restLen = (rest == null) ? 0 : rest.length;
-                String[] out = new String[1 + restLen];
-                out[0] = first;
-                if (restLen > 0) System.arraycopy(rest, 0, out, 1, restLen);
-                return out;
-        }
-
         private String ownerKeyForCustomer(Customer customer) {
                 return "C:" + customer.getId();
         }
@@ -337,48 +274,4 @@ public class Screening {
         public PricingPolicy getPricingPolicy() { return pricingPolicy; }
 
         public Map<String, SeatStatus> seatStatus() { return Collections.unmodifiableMap(seatStatus); }
-
-        // =========================================================
-        // ZAKUP + REJESTRACJA W CinemaChain (bez konfliktu overloadów)
-        // =========================================================
-
-        // Gość / bez tokena: rejestracja w CinemaChain
-        public List<TicketPurchase> buyTicketsAndRegister(CinemaChain chain, String... seatCodes) {
-                Objects.requireNonNull(chain, "chain");
-                List<TicketPurchase> purchases = buyTickets(seatCodes);
-                for (TicketPurchase tp : purchases) {
-                        chain.addTicket(tp.ticket());
-                }
-                return purchases;
-        }
-
-        // Gość z tokenem: rejestracja w CinemaChain
-        public List<TicketPurchase> buyTicketsWithReservationAndRegister(
-                CinemaChain chain,
-                String reservationToken,
-                String firstSeatCode,
-                String... otherSeatCodes
-        ) {
-                Objects.requireNonNull(chain, "chain");
-                List<TicketPurchase> purchases = buyTickets(reservationToken, firstSeatCode, otherSeatCodes);
-                for (TicketPurchase tp : purchases) {
-                        chain.addTicket(tp.ticket());
-                }
-                return purchases;
-        }
-
-        // Klient: rejestracja w CinemaChain
-        public List<TicketPurchase> buyTicketsForCustomerAndRegister(
-                CinemaChain chain,
-                Customer customer,
-                String... seatCodes
-        ) {
-                Objects.requireNonNull(chain, "chain");
-                Objects.requireNonNull(customer, "customer");
-                List<TicketPurchase> purchases = buyTickets(customer, seatCodes);
-                for (TicketPurchase tp : purchases) {
-                        chain.addTicket(tp.ticket());
-                }
-                return purchases;
-        }
 }

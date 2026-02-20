@@ -1,4 +1,3 @@
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class Main {
 
         tarasy.addHall(hall1);
 
-// ===== SEANS (dziś + 2h, żeby był w "najbliższym tygodniu") =====
+        // ===== SEANS (dziś + 2h) =====
         Screening screening = new Screening(
                 avatar,
                 hall1,
@@ -58,16 +57,16 @@ public class Main {
         );
         tarasy.addScreening(screening);
 
-// ===== REPERTUAR =====
+        // ===== REPERTUAR =====
         multikino.printProgramme();   // sieć
         tarasy.printProgramme();      // jedno kino
 
-// ===== KLIENT kupuje bilety i sprawdza swoje =====
-        List<TicketPurchase> p1 = screening.buyTickets(multikino, c1, "A1", "A2");
+        // ===== KLIENT kupuje bilety i sprawdza swoje =====
+        List<TicketPurchase> p1 = multikino.buyTickets(screening, c1, "A1", "A2");
         c1.printOwnTickets();
 
-// ===== GOŚĆ kupuje bilet i sprawdza po kodzie (CinemaChain) =====
-        List<TicketPurchase> p2 = screening.buyTickets(multikino, "A3");
+        // ===== GOŚĆ kupuje bilet i sprawdza po kodzie (CinemaChain) =====
+        List<TicketPurchase> p2 = multikino.buyTicketsAsGuest(screening, "A3");
         String guestCode = p2.get(0).ticket().getCode();
         System.out.println("Kod biletu gościa: " + guestCode);
 
@@ -77,13 +76,12 @@ public class Main {
                 + " | " + found.getScreening().getStartTime()
                 + " | miejsce: " + found.getSeat().getCode());
 
-// ===== GOŚĆ rezerwuje tokenem -> kupuje -> sprawdza =====
+        // ===== GOŚĆ rezerwuje tokenem -> kupuje -> sprawdza =====
         String token = screening.reservePlaces("A4", "A5");
-        List<TicketPurchase> p3 = screening.buyTickets(multikino, token, "A4", "A5");
+        List<TicketPurchase> p3 = multikino.buyTicketsWithToken(screening, token, "A4", "A5");
         String codeFromReservation = p3.get(0).ticket().getCode();
+
         System.out.println("Kod biletu (gość po rezerwacji): " + codeFromReservation);
         System.out.println("Wyszukiwanie w chain: " + (multikino.findTicketByCode(codeFromReservation) != null));
-
-
     }
 }
