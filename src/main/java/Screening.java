@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Map;
 
 public class Screening {
@@ -7,18 +8,20 @@ public class Screening {
         private boolean isVip;
         private boolean isThreeD;
 
-    public double calculatePrice(Seat seat) {
-        double base = priceByCategory.get(seat.getCategory());
+//    public double calculatePrice(Seat seat) {
+//        double base = priceByCategory.get(seat.getCategory());
+//
+//        if (isThreeD) {
+//            base += 5;
+//        }
+//
+//        if (isVip) {
+//            base += 10;
+//        }
+//
+//        return base;
+//    }
 
-        if (isThreeD) {
-            base += 5;
-        }
-
-        if (isVip) {
-            base += 10;
-        }
-
-        return base;
-    }
+//        public List<Ticket> buyTickets(Customer customer, String... seatCodes);
 
 }

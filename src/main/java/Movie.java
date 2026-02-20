@@ -1,12 +1,5 @@
-public class Movie {
-    private final String title;
+import java.time.Duration;
 
-    public Movie(String title) {
-        this.title = title;
-    }
+public record Movie(String title, Duration duration, String genre, int ageRestriction) {
 
-
-    public String getTitle() {
-        return title;
-    }
 }
