@@ -1,4 +1,5 @@
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -28,6 +29,17 @@ public class Screening {
         private final Map<String, List<String>> reservationsByOwnerKey = new HashMap<>();
 
         /**
+         * seatCode -> reservation timestamp (used to expire reservations)
+         */
+        private final Map<String, LocalDateTime> reservedAtBySeatCode = new HashMap<>();
+
+        /**
+         * Reservation time-to-live. After TTL passes, RESERVED seats are released back to FREE.
+         */
+        private final Duration reservationTtl;
+
+
+        /**
          * Lokalny rejestr sprzedanych biletów na ten seans
          * ticketCode -> Ticket
          */
@@ -39,6 +51,7 @@ public class Screening {
                 boolean isVip,
                 boolean isThreeD,
                 LocalDateTime startTime,
+                Duration reservationTtl,
                 PricingPolicy pricingPolicy
         ) {
                 this.movie = Objects.requireNonNull(movie, "movie");
@@ -46,6 +59,7 @@ public class Screening {
                 this.isVip = isVip;
                 this.isThreeD = isThreeD;
                 this.startTime = Objects.requireNonNull(startTime, "startTime");
+                this.reservationTtl = Objects.requireNonNull(reservationTtl, "reservationTtl");
                 this.pricingPolicy = Objects.requireNonNull(pricingPolicy, "pricingPolicy");
 
                 for (Seat seat : hall.getSeats()) {
@@ -55,7 +69,7 @@ public class Screening {
 
         // wygodny konstruktor z domyślną polityką cen
         public Screening(Movie movie, Hall hall, boolean isVip, boolean isThreeD, LocalDateTime startTime) {
-                this(movie, hall, isVip, isThreeD, startTime, DefaultPricingPolicy.defaultPolicy());
+                this(movie, hall, isVip, isThreeD, startTime, Duration.ofMinutes(30), DefaultPricingPolicy.defaultPolicy());
         }
 
         // =========================================================
@@ -76,6 +90,7 @@ public class Screening {
         }
 
         private void reservePlacesInternal(String ownerKey, String... seatCodes) {
+                cleanupExpiredReservations(LocalDateTime.now());
                 validateSeatCodesProvided(seatCodes);
 
                 // wszystkie miejsca muszą być FREE
@@ -88,9 +103,11 @@ public class Screening {
                 }
 
                 // rezerwacja
+                LocalDateTime reservedAt = LocalDateTime.now();
                 for (String code : seatCodes) {
                         seatStatus.put(code, SeatStatus.RESERVED);
                         reservedByOwnerKey.put(code, ownerKey);
+                        reservedAtBySeatCode.put(code, reservedAt);
                 }
 
                 reservationsByOwnerKey
@@ -128,6 +145,7 @@ public class Screening {
          * - oba null                => gość bez tokena
          */
         private List<TicketPurchase> buyTicketsInternal(Customer customerOrNull, String tokenOrNull, String... seatCodes) {
+                cleanupExpiredReservations(LocalDateTime.now());
                 validateSeatCodesProvided(seatCodes);
 
                 String customerOwnerKey = (customerOrNull == null) ? null : ownerKeyForCustomer(customerOrNull);
@@ -176,6 +194,7 @@ public class Screening {
                         seatStatus.put(code, SeatStatus.SOLD);
 
                         reservedByOwnerKey.remove(code);
+                        reservedAtBySeatCode.remove(code);
                         soldTicketsByCode.put(ticket.getCode(), ticket);
 
                         if (customerOrNull != null) {
@@ -211,16 +230,46 @@ public class Screening {
 
         public List<String> getReservedSeatsFor(Customer customer) {
                 Objects.requireNonNull(customer, "customer");
+                cleanupExpiredReservations(LocalDateTime.now());
                 return reservationsByOwnerKey.getOrDefault(ownerKeyForCustomer(customer), List.of());
         }
 
         public List<String> getReservedSeatsForToken(String reservationToken) {
                 if (reservationToken == null || reservationToken.isBlank()) return List.of();
+                cleanupExpiredReservations(LocalDateTime.now());
                 return reservationsByOwnerKey.getOrDefault(ownerKeyForGuest(reservationToken), List.of());
         }
 
         // =========================================================
         // HELPERS
+
+        private void cleanupExpiredReservations(LocalDateTime now) {
+                if (reservationTtl.isZero() || reservationTtl.isNegative()) return;
+
+                List<String> expiredSeatCodes = new ArrayList<>();
+                for (Map.Entry<String, LocalDateTime> e : reservedAtBySeatCode.entrySet()) {
+                        String seatCode = e.getKey();
+                        LocalDateTime reservedAt = e.getValue();
+                        if (reservedAt == null) continue;
+
+                        if (now.isAfter(reservedAt.plus(reservationTtl))
+                                && seatStatus.get(seatCode) == SeatStatus.RESERVED) {
+                                expiredSeatCodes.add(seatCode);
+                        }
+                }
+
+                for (String seatCode : expiredSeatCodes) {
+                        String ownerKey = reservedByOwnerKey.remove(seatCode);
+                        reservedAtBySeatCode.remove(seatCode);
+                        seatStatus.put(seatCode, SeatStatus.FREE);
+
+                        if (ownerKey != null) {
+                                removeSeatCodesFromReservations(ownerKey, seatCode);
+                        }
+                }
+        }
+
+
         // =========================================================
 
         private void removeSeatCodesFromReservations(String ownerKey, String... seatCodes) {

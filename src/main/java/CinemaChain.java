@@ -33,18 +33,43 @@ public class CinemaChain {
     }
 
     public void addCinema(Cinema cinema) {
+        Objects.requireNonNull(cinema, "cinema");
+        if (cinemas.containsKey(cinema.getId())) {
+            throw new IllegalStateException("Cinema with id already exists: " + cinema.getId());
+        }
         cinemas.put(cinema.getId(), cinema);
     }
 
     public void removeCinema(Cinema cinema) {
+        if (cinema == null) return;
         cinemas.remove(cinema.getId());
     }
 
     public void registerCustomer(Customer customer) {
+        Objects.requireNonNull(customer, "customer");
+
+        if (customers.containsKey(customer.getId())) {
+            throw new IllegalStateException("Customer with id already exists: " + customer.getId());
+        }
+
+        String email = customer.getEmail();
+        if (email != null && !email.isBlank()) {
+            String normalized = email.trim().toLowerCase(Locale.ROOT);
+            boolean emailTaken = customers.values().stream()
+                    .map(Customer::getEmail)
+                    .filter(Objects::nonNull)
+                    .map(e -> e.trim().toLowerCase(Locale.ROOT))
+                    .anyMatch(e -> e.equals(normalized));
+            if (emailTaken) {
+                throw new IllegalStateException("Customer with email already exists: " + email);
+            }
+        }
+
         customers.put(customer.getId(), customer);
     }
 
     public void unregisterCustomer(Customer customer) {
+        if (customer == null) return;
         customers.remove(customer.getId());
     }
 
@@ -64,18 +89,37 @@ public class CinemaChain {
     }
 
     public void addMovie(Movie movie) {
+        Objects.requireNonNull(movie, "movie");
+        String title = movie.title();
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Movie title is required");
+        }
+        boolean exists = movies.stream().anyMatch(m -> m.title().equalsIgnoreCase(title));
+        if (exists) {
+            throw new IllegalStateException("Movie already exists in catalogue: " + title);
+        }
         movies.add(movie);
     }
 
     public void removeMovie(Movie movie) {
+        if (movie == null) return;
         movies.remove(movie);
     }
 
     public void addTicket(Ticket ticket) {
-        ticketsByCode.put(ticket.getCode(), ticket);
+        Objects.requireNonNull(ticket, "ticket");
+        String code = ticket.getCode();
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("Ticket code is required");
+        }
+        if (ticketsByCode.containsKey(code)) {
+            throw new IllegalStateException("Ticket code already registered: " + code);
+        }
+        ticketsByCode.put(code, ticket);
     }
 
     public void removeTicket(Ticket ticket) {
+        if (ticket == null) return;
         ticketsByCode.remove(ticket.getCode());
     }
 
