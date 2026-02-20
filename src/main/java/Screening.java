@@ -261,15 +261,37 @@ public class Screening {
     public void printSeatMap() {
         cleanupExpiredReservations(LocalDateTime.now());
         printSummary();
-        hall.getSeats().stream()
-                .map(Seat::getCode)
-                .sorted()
-                .forEach(code -> {
-                    SeatStatus status = seatStatus.get(code);
-                    String ownerKey = (status == SeatStatus.RESERVED) ? reservedByOwnerKey.get(code) : null;
-                    System.out.println(code + " -> " + status + (ownerKey == null ? "" : " (" + ownerKey + ")"));
-                });
+
+        Map<String, List<Seat>> seatsByRow = new TreeMap<>();
+        for (Seat seat : hall.getSeats()) {
+            seatsByRow.computeIfAbsent(seat.row(), r -> new ArrayList<>()).add(seat);
+        }
+
+        for (Map.Entry<String, List<Seat>> entry : seatsByRow.entrySet()) {
+            List<Seat> rowSeats = new ArrayList<>(entry.getValue());
+            rowSeats.sort(Comparator.comparingInt(Seat::number));
+
+            StringBuilder line = new StringBuilder();
+            line.append("Row ").append(entry.getKey()).append(": ");
+
+            for (Seat seat : rowSeats) {
+                String code = seat.getCode();
+                SeatStatus status = seatStatus.get(code);
+
+                line.append(code).append("=").append(status);
+
+                if (status == SeatStatus.RESERVED) {
+                    String ownerKey = reservedByOwnerKey.get(code);
+                    if (ownerKey != null) {
+                        line.append("(").append(ownerKey).append(")");
+                    }
+                }
+                line.append("  ");
+            }
+            System.out.println(line.toString().trim());
+        }
     }
+
 
     /**
      * Prints active reservations grouped by ownerKey.

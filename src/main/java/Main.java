@@ -57,6 +57,9 @@ public class Main {
         );
         tarasy.addScreening(screening);
 
+        tarasy.printHalls();
+        tarasy.printScreenings();
+
         // ===== Programme =====
         multikino.printProgramme();
         tarasy.printProgramme();

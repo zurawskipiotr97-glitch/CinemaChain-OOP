@@ -3,7 +3,7 @@ import java.util.Objects;
 public record Seat(String row, int number, SeatCategory category) {
 
     public Seat {
-        row = normalizeRow(row); // tu ma sens, bo zmieniasz/normalizujesz
+        row = normalizeRow(row);
         Objects.requireNonNull(category, "category");
 
         if (number <= 0) {
