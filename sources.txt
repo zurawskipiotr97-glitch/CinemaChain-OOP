@@ -1,0 +1,17 @@
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/pricing/PricingPolicy.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/pricing/DefaultPricingPolicy.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/catalog/Genre.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/catalog/Movie.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/venue/SeatCategory.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/venue/Hall.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/venue/Seat.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/venue/Cinema.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/screening/SeatStatus.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/screening/SeatingPlan.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/screening/Screening.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/booking/Reservation.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/customer/Customer.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/sales/TicketPurchase.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/sales/Ticket.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/domain/chain/CinemaChain.java
+src/main/java/pl/edu/agh/zurawskipiotr/cinemachain/Main.java

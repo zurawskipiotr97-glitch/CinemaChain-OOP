@@ -1,3 +1,54 @@
+# CinemaChain -- Projekt OOP
+
+## Opis projektu
+
+Projekt realizowany w ramach programowania obiektowego.\
+System symuluje działanie sieci kin (CinemaChain) z wykorzystaniem zasad
+OOP (enkapsulacja, dziedziczenie, polimorfizm, abstrakcja).
+
+## Struktura projektu
+
+-   `src/` -- kod źródłowy aplikacji\
+-   `docs/` -- dokumentacja (jeśli występuje)\
+-   `tests/` -- testy jednostkowe (jeśli występują)
+
+## Wymagania
+
+-   JDK (zalecana wersja zgodna z projektem)
+-   Dowolne IDE obsługujące Javę (np. IntelliJ IDEA / Eclipse)
+
+## Uruchomienie
+
+1.  Sklonuj repozytorium.
+2.  Otwórz projekt w IDE.
+3.  Zbuduj projekt.
+4.  Uruchom klasę z metodą `main`.
+
+------------------------------------------------------------------------
+
+## Diagram UML
+
+> **Miejsce na wklejenie wygenerowanego diagramu UML.**\
+> Po wygenerowaniu diagramu (np. w formacie PNG/SVG lub jako kod
+> PlantUML),\
+> wklej go poniżej tego nagłówka.
+
+```{=html}
+<!--
+TU WKLEJ UML
+Możesz:
+- wkleić obrazek: ![UML](./uml.png)
+- wkleić kod PlantUML
+- wkleić eksport z narzędzia CASE
+-->
+```
+
+------------------------------------------------------------------------
+
+## Treść zadania
+
+------------------------------------------------------------------------
+
 Celem zadania jest zaprojektowanie i implementacja systemu wspierającego funkcjonowanie sieci multipleksów (a więc mówimy o obsłudze wielu lokalizacji, a w każdej z nich jest wiele sal kinowych).
 
 ![img.png](docs/images/img.png)
