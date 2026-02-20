@@ -1,4 +1,5 @@
 import java.time.Duration;
+import java.util.List;
 
 public class Main {
     static void main() {
@@ -15,12 +16,12 @@ public class Main {
         Multikino.addCinema(starowka);
 
         // ===== FILMY =====
-        Movie avatar = new Movie("Avatar: Istota Wody", Duration.ofMinutes(162), "Sci-Fi", 12);
-        Movie oppenheimer = new Movie("Oppenheimer", Duration.ofMinutes(180), "Biograficzny", 15);
-        Movie barbie = new Movie("Barbie", Duration.ofMinutes(114), "Komedia", 7);
-        Movie dune = new Movie("Diuna: Część II", Duration.ofMinutes(166), "Sci-Fi", 12);
-        Movie johnWick = new Movie("John Wick 4", Duration.ofMinutes(169), "Akcja", 16);
-        Movie wish = new Movie("Życzenie", Duration.ofMinutes(95), "Animacja", 0);
+        Movie avatar = new Movie("Avatar: Istota Wody", 162, List.of(Genre.SCI_FI), 12);
+        Movie oppenheimer = new Movie("Oppenheimer", 180, List.of(Genre.BIOGRAPHY, Genre.DRAMA, Genre.HISTORICAL), 15);
+        Movie barbie = new Movie("Barbie", 114, List.of(Genre.COMEDY), 7);
+        Movie dune = new Movie("Diuna: Część II", 166, List.of(Genre.SCI_FI), 12);
+        Movie johnWick = new Movie("John Wick 4", 169, List.of(Genre.ACTION), 16);
+        Movie wish = new Movie("Życzenie", 95, List.of(Genre.ANIMATION, Genre.FAMILY), 0);
 
         // ===== DODANIE FILMÓW DO SIECI =====
         Multikino.addMovie(avatar);

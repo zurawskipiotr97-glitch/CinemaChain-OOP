@@ -1,29 +1,22 @@
-public class Seat {
-    private final String row;
-    private final String seat;
-    private final String code;
-    private final String category;
+import java.util.Objects;
 
-    public Seat(String row, String seat, String category) {
-        this.row = row;
-        this.seat = seat;
-        this.code = row+seat;
-        this.category = category;
+public record Seat(String row, int number, SeatCategory category) {
+
+    public Seat {
+        row = normalizeRow(row); // tu ma sens, bo zmieniasz/normalizujesz
+        Objects.requireNonNull(category, "category");
+
+        if (number <= 0) {
+            throw new IllegalArgumentException("Seat number must be > 0");
+        }
     }
 
-    public String getRow() {
-        return row;
-    }
-
-    public String getSeat() {
-        return seat;
+    private static String normalizeRow(String row) {
+        if (row == null || row.trim().isEmpty()) throw new IllegalArgumentException("Row is empty");
+        return row.trim().toUpperCase();
     }
 
     public String getCode() {
-        return code;
-    }
-
-    public String getCategory() {
-        return category;
+        return row + number;
     }
 }
