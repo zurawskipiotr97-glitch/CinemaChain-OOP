@@ -14,11 +14,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Represents a single movie screening (movie + hall + start time + flags).
- *
- * Dynamic seat availability & reservations are delegated to {@link SeatingPlan}.
- */
 public class Screening {
     private final Movie movie;
     private final Hall hall;
@@ -29,10 +24,6 @@ public class Screening {
     private final PricingPolicy pricingPolicy;
     private final SeatingPlan seatingPlan;
 
-    /**
-     * Local registry of tickets sold for this screening.
-     * ticketCode -> Ticket
-     */
     private final Map<String, Ticket> soldTicketsByCode = new HashMap<>();
 
     public Screening(
@@ -55,43 +46,30 @@ public class Screening {
         this.seatingPlan = new SeatingPlan(seatCodes, Objects.requireNonNull(reservationTtl, "reservationTtl"));
     }
 
-    // Convenience constructor with default pricing policy and TTL.
     public Screening(Movie movie, Hall hall, boolean isVip, boolean isThreeD, LocalDateTime startTime) {
         this(movie, hall, isVip, isThreeD, startTime, Duration.ofMinutes(30), DefaultPricingPolicy.defaultPolicy());
     }
-
-    // =========================================================
-    // Reservations
 
     public void reservePlaces(Customer customer, String... seatCodes) {
         Objects.requireNonNull(customer, "customer");
         seatingPlan.reserve(ownerKeyForCustomer(customer), seatCodes);
     }
 
-    /**
-     * Guest reservation -> returns token.
-     */
     public String reservePlaces(String... seatCodes) {
         String token = generateReservationToken();
         seatingPlan.reserve(ownerKeyForGuest(token), seatCodes);
         return token;
     }
 
-    // =========================================================
-    // Purchases
-
-    /** Guest without token: FREE only */
     public List<TicketPurchase> buyTicketsAsGuest(String... seatCodes) {
         return buyTicketsInternal(null, null, seatCodes);
     }
 
-    /** Customer: FREE + own RESERVED */
     public List<TicketPurchase> buyTicketsForCustomer(Customer customer, String... seatCodes) {
         Objects.requireNonNull(customer, "customer");
         return buyTicketsInternal(customer, null, seatCodes);
     }
 
-    /** Guest with token: FREE + token-owned RESERVED */
     public List<TicketPurchase> buyTicketsAsGuestWithToken(String reservationToken, String... seatCodes) {
         if (reservationToken == null || reservationToken.isBlank()) {
             throw new IllegalArgumentException("Reservation token is required");
@@ -99,12 +77,6 @@ public class Screening {
         return buyTicketsInternal(null, reservationToken, seatCodes);
     }
 
-    /**
-     * Shared purchase logic:
-     * - customerOrNull != null  => customer
-     * - tokenOrNull != null     => guest with token
-     * - both null               => guest without token
-     */
     private List<TicketPurchase> buyTicketsInternal(Customer customerOrNull, String tokenOrNull, String... seatCodes) {
         String customerOwnerKey = (customerOrNull == null) ? null : ownerKeyForCustomer(customerOrNull);
         String guestOwnerKey = (tokenOrNull == null) ? null : ownerKeyForGuest(tokenOrNull);
@@ -117,7 +89,7 @@ public class Screening {
             Seat seat = findSeatByCode(code);
 
             BigDecimal price = pricingPolicy.calculatePrice(seat, isVip(), isThreeD());
-            Ticket ticket = new Ticket(this, seat, customerOrNull); // owner=null for guest
+            Ticket ticket = new Ticket(this, seat, customerOrNull);
 
             purchases.add(new TicketPurchase(ticket, price));
             seatingPlan.markSold(code);
@@ -133,9 +105,6 @@ public class Screening {
 
         return purchases;
     }
-
-    // =========================================================
-    // Ticket verification / preview
 
     public Ticket findTicketByCode(String ticketCode) {
         if (ticketCode == null) return null;
@@ -156,9 +125,6 @@ public class Screening {
         return seatingPlan.getReservedSeats(ownerKeyForGuest(reservationToken));
     }
 
-    // =========================================================
-    // Printing (demo/debug helpers)
-
     public void printSummary() {
         System.out.println("Screening: " + movie.title() + " | " + startTime
                 + " | hall=" + hall.getName()
@@ -166,14 +132,6 @@ public class Screening {
                 + (isThreeD ? " | 3D" : ""));
     }
 
-    /**
-     * Prints a compact, row-based seat map.
-     *
-     * Legend:
-     *   . = FREE
-     *   R = RESERVED
-     *   X = SOLD
-     */
     public void printSeatMap() {
         printSummary();
 
@@ -259,9 +217,6 @@ public class Screening {
                 .forEach(r -> System.out.println("- " + r.ownerKey() + " -> " + r.seatCodes() + " | createdAt=" + r.createdAt()));
     }
 
-    // =========================================================
-    // Helpers
-
     private Seat findSeatByCode(String code) {
         for (Seat s : hall.getSeats()) {
             if (s.getCode().equals(code)) return s;
@@ -281,15 +236,31 @@ public class Screening {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 10);
     }
 
-    // =========================================================
-    // Getters
+    public Movie getMovie() {
+        return movie;
+    }
 
-    public Movie getMovie() { return movie; }
-    public Hall getHall() { return hall; }
-    public boolean isVip() { return isVip; }
-    public boolean isThreeD() { return isThreeD; }
-    public LocalDateTime getStartTime() { return startTime; }
-    public PricingPolicy getPricingPolicy() { return pricingPolicy; }
+    public Hall getHall() {
+        return hall;
+    }
 
-    public Map<String, SeatStatus> seatStatus() { return seatingPlan.seatStatusSnapshot(); }
+    public boolean isVip() {
+        return isVip;
+    }
+
+    public boolean isThreeD() {
+        return isThreeD;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public PricingPolicy getPricingPolicy() {
+        return pricingPolicy;
+    }
+
+    public Map<String, SeatStatus> seatStatus() {
+        return seatingPlan.seatStatusSnapshot();
+    }
 }

@@ -132,11 +132,6 @@ public class CinemaChain {
         ticketsByCode.remove(ticket.getCode());
     }
 
-    // =========================================================
-    // pl.edu.agh.zurawskipiotr.cinemachain.model.Ticket sales via chain (registering issued ticket codes)
-    // =========================================================
-
-    // pl.edu.agh.zurawskipiotr.cinemachain.model.Customer purchase (FREE + own RESERVED)
     public List<TicketPurchase> buyTickets(Screening screening, Customer customer, String... seatCodes) {
         Objects.requireNonNull(screening, "screening");
         Objects.requireNonNull(customer, "customer");
@@ -146,7 +141,6 @@ public class CinemaChain {
         return purchases;
     }
 
-    // Guest purchase without reservation (FREE only)
     public List<TicketPurchase> buyTicketsAsGuest(Screening screening, String... seatCodes) {
         Objects.requireNonNull(screening, "screening");
 
@@ -155,7 +149,6 @@ public class CinemaChain {
         return purchases;
     }
 
-    // Guest purchase using token (FREE + token-owned RESERVED)
     public List<TicketPurchase> buyTicketsWithToken(Screening screening, String token, String... seatCodes) {
         Objects.requireNonNull(screening, "screening");
 
@@ -169,10 +162,6 @@ public class CinemaChain {
             addTicket(tp.ticket());
         }
     }
-
-    // =========================================================
-    // Programme for the next 7 days
-    // =========================================================
 
     public void printProgramme() {
         System.out.println("Repertuar sieci: " + chainName);
@@ -244,7 +233,6 @@ public class CinemaChain {
         System.out.println("Tickets registered in chain: " + ticketsByCode.size());
     }
 
-    // Backward-compatible alias.
     public Ticket getTicketByCode(String code) {
         return findTicketByCode(code);
     }

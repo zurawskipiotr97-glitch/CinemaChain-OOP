@@ -16,7 +16,6 @@ public class Customer {
     private String lastName;
     private String email;
 
-
     public Customer(String firstName, String lastName, String email) {
         this.id = UUID.randomUUID().toString();
         this.firstName = firstName;
@@ -82,6 +81,5 @@ public class Customer {
                     + " | miejsce: " + t.getSeat().getCode());
         }
     }
-
 
 }

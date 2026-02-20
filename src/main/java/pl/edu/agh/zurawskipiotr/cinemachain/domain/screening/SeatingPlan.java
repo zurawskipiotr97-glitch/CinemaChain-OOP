@@ -6,32 +6,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Per-screening state of seats (availability, reservations, expiration).
- *
- * Hall defines the layout (which seats exist). SeatingPlan defines the dynamic state for a specific screening.
- */
 public class SeatingPlan {
 
-    // seatCode -> status
     private final Map<String, SeatStatus> seatStatus = new HashMap<>();
 
-    /**
-     * seatCode -> ownerKey
-     * ownerKey format:
-     *   - C:<customerId>
-     *   - G:<token>
-     */
     private final Map<String, String> reservedByOwnerKey = new HashMap<>();
 
-    /**
-     * ownerKey -> reservation (for preview / printing)
-     */
     private final Map<String, Reservation> reservationsByOwnerKey = new HashMap<>();
 
-    /**
-     * seatCode -> reservation timestamp (used to expire reservations)
-     */
     private final Map<String, LocalDateTime> reservedAtBySeatCode = new HashMap<>();
 
     private final Duration reservationTtl;
@@ -70,9 +52,6 @@ public class SeatingPlan {
         reservationsByOwnerKey.put(ownerKey, new Reservation(ownerKey, List.copyOf(merged), reservedAt));
     }
 
-    /**
-     * Verifies whether seatCodes can be purchased by a given actor (customer or guest token).
-     */
     public void authorizePurchase(String customerOwnerKey, String guestOwnerKey, boolean isGuestWithoutToken, String... seatCodes) {
         cleanupExpiredReservations(LocalDateTime.now());
         validateSeatCodesProvided(seatCodes);
@@ -152,9 +131,6 @@ public class SeatingPlan {
     public Collection<Reservation> reservationsSnapshot() {
         return List.copyOf(reservationsByOwnerKey.values());
     }
-
-    // =========================
-    // Expiration
 
     private void cleanupExpiredReservations(LocalDateTime now) {
         if (reservationTtl.isZero() || reservationTtl.isNegative()) return;

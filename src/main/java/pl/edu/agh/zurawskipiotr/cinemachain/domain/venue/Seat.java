@@ -1,6 +1,5 @@
 package pl.edu.agh.zurawskipiotr.cinemachain.domain.venue;
 
-
 import java.util.Objects;
 
 public record Seat(String row, int number, SeatCategory category) {

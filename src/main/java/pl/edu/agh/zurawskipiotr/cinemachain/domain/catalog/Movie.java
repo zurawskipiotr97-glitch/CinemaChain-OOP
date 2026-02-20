@@ -1,7 +1,5 @@
 package pl.edu.agh.zurawskipiotr.cinemachain.domain.catalog;
 
-
-
 import java.util.List;
 
 public record Movie(
@@ -11,6 +9,6 @@ public record Movie(
         int ageRestriction
 ) {
     public Movie {
-        genres = List.copyOf(genres); // defensywna kopia
+        genres = List.copyOf(genres);
     }
 }

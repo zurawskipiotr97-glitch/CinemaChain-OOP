@@ -15,11 +15,12 @@ import pl.edu.agh.zurawskipiotr.cinemachain.domain.venue.Seat;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// Klasa reprezentująca element systemu
 public class Main {
+    // Punkt startowy aplikacji
     public static void main(String[] args) {
         CinemaChain chain = new CinemaChain("Multikino");
 
-        // ===== Cinemas =====
         Cinema tarasy = new Cinema("Super Tarasy", "ul. Akademicka 5");
         Cinema vivo = new Cinema("Vivo", "ul. Chopina 42");
         Cinema starowka = new Cinema("Starówka", "ul. Rynek 25/26");
@@ -28,7 +29,6 @@ public class Main {
         chain.addCinema(vivo);
         chain.addCinema(starowka);
 
-        // ===== Movies =====
         Movie avatar = new Movie("Avatar: Istota Wody", 162, List.of(Genre.SCI_FI), 12);
         Movie dune = new Movie("Diuna: Część II", 166, List.of(Genre.SCI_FI), 12);
         Movie wish = new Movie("Życzenie", 95, List.of(Genre.ANIMATION, Genre.FAMILY), 0);
@@ -37,13 +37,11 @@ public class Main {
         chain.addMovie(dune);
         chain.addMovie(wish);
 
-        // ===== Customers =====
         Customer c1 = new Customer("Jan", "Kowalski", "jan.kowalski@mail.com");
         Customer c2 = new Customer("Anna", "Nowak", "anna.nowak@mail.com");
         chain.registerCustomer(c1);
         chain.registerCustomer(c2);
 
-        // ===== Halls + seats =====
         Hall hallTarasy1 = new Hall("Sala 1");
         for (int i = 1; i <= 10; i++) hallTarasy1.addSeat(new Seat("A", i, SeatCategory.STANDARD));
         for (int i = 1; i <= 5; i++) hallTarasy1.addSeat(new Seat("B", i, SeatCategory.VIP));
@@ -58,14 +56,13 @@ public class Main {
         for (int i = 1; i <= 6; i++) hallStarowka1.addSeat(new Seat("A", i, SeatCategory.STANDARD));
         starowka.addHall(hallStarowka1);
 
-        // ===== Screenings (within next week) =====
         LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
 
         Screening sTarasy = new Screening(
                 avatar,
                 hallTarasy1,
-                false,  // VIP screening flag
-                true,   // 3D
+                false,
+                true,
                 now.plusHours(2)
         );
         tarasy.addScreening(sTarasy);
@@ -73,8 +70,8 @@ public class Main {
         Screening sVivo = new Screening(
                 dune,
                 hallVivo1,
-                true,   // VIP screening flag
-                true,   // 3D
+                true,
+                true,
                 now.plusDays(1).withHour(19).withMinute(0)
         );
         vivo.addScreening(sVivo);
@@ -88,7 +85,6 @@ public class Main {
         );
         starowka.addScreening(sStarowka);
 
-        // pl.edu.agh.zurawskipiotr.cinemachain.model.Screening outside the "next week" window (should not appear in programme for next week)
         Screening outsideWeek = new Screening(
                 avatar,
                 hallTarasy1,
@@ -98,10 +94,8 @@ public class Main {
         );
         tarasy.addScreening(outsideWeek);
 
-        // ===== Programme (next week) =====
         chain.printProgramme();
 
-        // ===== pl.edu.agh.zurawskipiotr.cinemachain.model.Seat map (pretty) + reservations + purchases =====
         System.out.println();
         System.out.println("=== pl.edu.agh.zurawskipiotr.cinemachain.model.Seat map: initial state ===");
         sTarasy.printSeatMap();
@@ -126,7 +120,6 @@ public class Main {
             System.out.println("Purchase rejected: " + ex.getMessage());
         }
 
-        // State should be unchanged after a rejected purchase attempt.
         sTarasy.printSeatMap();
 
         System.out.println();
@@ -173,7 +166,6 @@ public class Main {
         System.out.println();
         chain.printTicketRegistrySummary();
 
-        // ===== Shows that VIP/3D pricing is also present on another screening =====
         System.out.println();
         System.out.println("=== Pricing example for VIP+3D screening ===");
         sVivo.printSeatMap();

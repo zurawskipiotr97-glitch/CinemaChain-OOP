@@ -34,8 +34,8 @@ public class DefaultPricingPolicy implements PricingPolicy {
 
         return new DefaultPricingPolicy(
                 bases,
-                BigDecimal.valueOf(5),   // 3D
-                BigDecimal.valueOf(10)   // VIP screening
+                BigDecimal.valueOf(5),
+                BigDecimal.valueOf(10)
         );
     }
 

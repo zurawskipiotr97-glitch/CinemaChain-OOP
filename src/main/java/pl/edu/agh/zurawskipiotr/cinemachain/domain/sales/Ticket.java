@@ -10,7 +10,7 @@ public class Ticket {
     private final String code;
     private final Screening screening;
     private final Seat seat;
-    private final Customer owner;       // null jeśli guest
+    private final Customer owner;
 
     public Ticket(Screening screening, Seat seat, Customer owner) {
         this.code = UUID.randomUUID().toString();

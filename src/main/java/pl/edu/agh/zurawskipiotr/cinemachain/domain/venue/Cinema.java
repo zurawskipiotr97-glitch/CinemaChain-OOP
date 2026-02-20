@@ -82,7 +82,6 @@ public class Cinema {
         screenings.remove(screening);
     }
 
-
     public void printHalls() {
         System.out.println("Halls in cinema: " + name + " (" + address + ")");
         if (rooms.isEmpty()) {
@@ -111,14 +110,10 @@ public class Cinema {
                 });
     }
 
-// =========================================================
-    // REPERTUAR NA NAJBLIŻSZY TYDZIEŃ
-    // =========================================================
-
     public List<Screening> getProgrammeForNextWeek() {
         LocalDate today = LocalDate.now();
         LocalDateTime fromInclusive = today.atStartOfDay();
-        LocalDateTime toExclusive = today.plusDays(7).atStartOfDay(); // upper bound is exclusive
+        LocalDateTime toExclusive = today.plusDays(7).atStartOfDay();
         return getProgrammeBetween(fromInclusive, toExclusive);
     }
 
