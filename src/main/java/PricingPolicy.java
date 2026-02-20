@@ -1,5 +1,3 @@
-package Configuration;
-
 import java.math.BigDecimal;
 import java.util.Map;
 
