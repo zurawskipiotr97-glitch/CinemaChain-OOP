@@ -59,5 +59,9 @@ public class Customer {
         this.ownTickets.remove(ticket);
     }
 
+    public List<String> getReservationsFor(Screening screening) {
+        return screening.getReservedSeatsFor(this);
+    }
+
 
 }
