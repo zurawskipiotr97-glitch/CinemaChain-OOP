@@ -152,11 +152,6 @@ public class CinemaChain {
         }
     }
 
-    // alias pod literówkę z Twojego wywołania
-    public void pringProgramme() {
-        printProgramme();
-    }
-
     private void printProgrammeBlock(List<Screening> week) {
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
 
